@@ -24,12 +24,9 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1',
-    cast=Csv()
-)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
 
 
@@ -88,7 +85,6 @@ import pymysql
 pymysql.install_as_MySQLdb()
 
 # config: función de python-decouple que lee valores del archivo .env
-from decouple import config
 
 # (más abajo en el archivo, reemplazá el DATABASES que trae Django por defecto)
 DATABASES = {
@@ -159,9 +155,18 @@ MAILERS = {
     },
 }
 
-# STORAGES: le dice a Django que use whitenoise para comprimir y versionar esos archivos
+
+# STORAGES: NUEVO — le dice a Django cómo guardar archivos
 STORAGES = {
+    # "default": archivos que suban los usuarios; se deja el sistema normal de Django (obligatorio declararlo)
+    "default": {
+        # FileSystemStorage: guarda en disco, igual que antes de este cambio
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    # cierre de la config de "default"
+    },
+    # "staticfiles": tus CSS/JS/imágenes; whitenoise los comprime y les pone una "huella" en el nombre
     "staticfiles": {
+        # CompressedManifestStaticFilesStorage: el almacenamiento optimizado que trae whitenoise
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     # cierre de la config de "staticfiles"
     },
